@@ -2,21 +2,16 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookShelve from './components/BookShelve.js'
+import { Route, Link } from 'react-router-dom'
 
 const statusWantToRead = "wantToRead"
 const statusReading = "currentlyReading"
 const statusRead = "read"
 
+
 class BooksApp extends React.Component {
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    books: [],
-    showSearchPage: false
+    books: []
   }
 
   componentDidMount() {
@@ -27,14 +22,39 @@ class BooksApp extends React.Component {
     )
   }
 
+  //todo: issue with updating the same book twice in a row
+  updateBook = (book, shelve) => {
+    console.log(`${book.title} to shelve ${shelve}`);
+    const alteredBook = book
+    alteredBook.shelf = shelve
+    let newList = this.state.books.filter( item => item !== book ).concat(alteredBook)
+    this.setState(() => ({ 
+      books: newList
+    }))
+    BooksAPI.update(book, shelve)
+  }
+
   render() {
     console.log(this.state.books);
     return (
       <div className="app">
-        {this.state.showSearchPage ? (
+        <Route exact path='/' render={() => (
+          <div className="list-books">
+            <div className="list-books-title">
+              <h1>MyReads</h1>
+            </div>
+            <div className="list-books-content">
+              <BookShelve shelveTitle="Currently Reading" changeShelveAction={this.updateBook} booksList={this.state.books.filter(it => it.shelf === statusReading)} />
+              <BookShelve shelveTitle="Want to Read" changeShelveAction={this.updateBook} booksList={this.state.books.filter(it => it.shelf === statusWantToRead)} />
+              <BookShelve shelveTitle="Read" changeShelveAction={this.updateBook} booksList={this.state.books.filter(it => it.shelf === statusRead)} />
+            </div>
+            <Link to='/add' className="open-search">Add a book</Link>
+          </div>
+        )}/>
+        <Route path='/add' render={() => (
           <div className="search-books">
             <div className="search-books-bar">
-              <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button>
+              <Link to='/' className="close-search">Close</Link>
               <div className="search-books-input-wrapper">
                 {/*
                   NOTES: The search from BooksAPI is limited to a particular set of search terms.
@@ -52,23 +72,7 @@ class BooksApp extends React.Component {
               <ol className="books-grid"></ol>
             </div>
           </div>
-        ) : (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
-            <div className="list-books-content">
-              <div>
-                <BookShelve shelveTitle="Currently Reading" booksList={this.state.books.filter(it => it.shelf === statusReading)} />
-                <BookShelve shelveTitle="Want to Read" booksList={this.state.books.filter(it => it.shelf === statusWantToRead)} />
-                <BookShelve shelveTitle="Read" booksList={this.state.books.filter(it => it.shelf === statusRead)} />
-              </div>
-            </div>
-            <div className="open-search">
-              <button onClick={() => this.setState({ showSearchPage: true })}>Add a book</button>
-            </div>
-          </div>
-        )}
+        )}/>
       </div>
     )
   }

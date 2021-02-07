@@ -10,11 +10,8 @@ class BookShelve extends Component {
                         <ol className="books-grid">
                             {this.props.booksList.map(book => (
                                 <li key={book.id}>
-                                    <Book 
-                                        title={book.title}
-                                        author={book.authors[0]}
-                                        coverUrl={book.imageLinks.smallThumbnail}/>
-                                </li>          
+                                    <Book book={book} changeShelveAction={this.props.changeShelveAction}/>
+                                </li>
                             ))}
                         </ol>
                     </div>
