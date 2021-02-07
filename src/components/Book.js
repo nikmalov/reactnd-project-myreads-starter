@@ -6,7 +6,7 @@ class Book extends Component {
     render() {
         const bookCoverStyle = {
             width: this.props.coverWidth || 128,
-            height: this.props.coverHeight,
+            height: this.props.coverHeight || 186,
             backgroundImage: `url(${this.props.coverUrl})`
         }
 
